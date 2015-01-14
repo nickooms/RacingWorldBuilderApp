@@ -4,21 +4,27 @@
 <head>
   <meta charset="utf-8">
   <link href="main.css" rel="stylesheet">
+  <script type="text/javascript" src="MarchingSquares.js"></script>
+  <script type="text/javascript" src="CornerDetect.js"></script>
+  <script type="text/javascript" src="Floodfill.js"></script>
+  <script type="text/javascript" src="Images.js"></script>
+  <script type="text/javascript" src="Lines.js"></script>
+  <script type="text/javascript" src="Points.js"></script>
+  <script type="text/javascript" src="Color.js"></script>
+  <script type="text/javascript" src="Racing.js"></script>
+  <script type="text/javascript" src="Sort.js"></script>
 </head>
 
-<body>
-  <h3>Waiting for messages</h3>
-  <label>my Application ID is
+<body bgcolor="yellow">
+  <div style="visibility:hidden"><label>my Application ID is
     <input id="appid" type="text" readonly></input>
   </label>
   <div>
-    <label for="sendText">Send message:</label>
-    <input id="sendText" type="text"></input>
-    <label for="sendId">to application ID </label>
-    <input id="sendId" type="text"></input>
-    <button id="send">Send</button>
+    <button id="list">List</button>
+    <button id="delete">Delete All</button>
   </div>
   <div id="log"></div>
+  <div>
   <script src="index.js"></script>
 </body>
 

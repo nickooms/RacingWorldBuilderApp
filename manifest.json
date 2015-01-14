@@ -2,17 +2,12 @@
   "manifest_version": 2,
   "name": "Racing World Builder App",
   "description": "Nick Ooms Racing World Builder App",
-  "version": "2",
+  "version": "3",
   "minimum_chrome_version": "23",
   "permissions": [
+    {"fileSystem": ["write","retainEntries","directory"]},
     "storage",
-    "unlimitedStorage", {
-      "fileSystem": [
-        "write",
-        "retainEntries",
-        "directory"
-      ]
-    }
+    "unlimitedStorage"
   ],
   "icons": {
     "48": "golf48x48.png",
