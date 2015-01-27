@@ -7,6 +7,9 @@ input[type="text"] {
   margin-top: 10px;
   height: 300px;
   border: 1px solid black;
-  overflow-y: scroll;
+  /*overflow-y: scroll;*/
   overflow-x: hidden;
+}
+body {
+	overflow: hidden;
 }
