@@ -61,7 +61,8 @@ function loadFS() {
           if (chosenEntry) {
             Racing.chosenEntry = chosenEntry;
             fs = chosenEntry.filesystem;
-            loadDirEntry(Images.load);
+            //loadDirEntry(Images.load);
+            loadDirEntry(Processing.init);
           }
         });
       });
@@ -266,8 +267,9 @@ function loadDirEntry(callback) {
     dirReader.readEntries(function(results) {
       if (!results.length) {
         Racing.entries = entries;
-        Racing.loadedCallback = Images.load;
-        loadPoints(callback);
+        callback();
+        //Racing.loadedCallback = Images.load;
+        //loadPoints(callback);
       } else {
         results.forEach(function(item) { 
           entries = entries.concat(item);

@@ -23,8 +23,16 @@ window.Images = {
   getGrid: function(images) {
     var uniqueCols = {};
     var uniqueRows = {};
+    Racing.imagesToLoad = images.length;
+    var uniqueCols = {};
+    var uniqueRows = {};
     images.forEach(function(image) {
-      var bbox = Images.parseFileName(image).bbox;
+      var name = image.name;
+      var components = name.split('-');
+      var gemeente = components[0];
+      var straat = components[1];
+      var layer = components[2];
+      var bbox = components[3].replace('.png', '').split(',');
       uniqueCols[bbox[0]] = true;
       uniqueRows[bbox[1]] = true;
       uniqueCols[bbox[2]] = true;
