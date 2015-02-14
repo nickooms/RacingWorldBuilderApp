@@ -9,6 +9,9 @@ window.Color = {
   random: function() {
     return '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
   },
+  grayscale: function(color) {
+    return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+  },
   analyze: function(imageData) {
     var data = imageData.data;
     var length = data.byteLength;

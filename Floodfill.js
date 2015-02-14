@@ -51,12 +51,12 @@ function floodFill(canvas, x, y, newColor, newAlpha) {
         data[offset + 1] = newG;
         data[offset + 2] = newB;
         if (newAlpha != null) {
-          data[offset + 3] = newAlpha ? newAlpha : 255;
+          data[offset + 3] = newAlpha != null ? newAlpha : 255;
         }
         fillData[offset] = newR;
         fillData[offset + 1] = newG;
         fillData[offset + 2] = newB;
-        fillData[offset + 3] = newAlpha ? newAlpha : 255;
+        fillData[offset + 3] = newAlpha != null ? newAlpha : 255;
         minX = Math.min(minX, nextX);
         maxX = Math.max(maxX, nextX);
         minY = Math.min(minY, nextY);
@@ -71,7 +71,7 @@ function floodFill(canvas, x, y, newColor, newAlpha) {
     image: fill,
     x: minX,
     y: minY,
-    width: maxX - minX,
-    height: maxY - minY
+    width: 1 + maxX - minX,
+    height: 1 + maxY - minY
   };
 };

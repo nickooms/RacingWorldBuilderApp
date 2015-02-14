@@ -11,6 +11,11 @@ window.Images = {
     Images.items = images;
     return images;
   },
+  fromLayer: function(layerName) {
+    return Images.fromEntries().filter(function(entry) {
+      return entry.name.split('-')[2] == layerName ? entry : null;
+    });
+  },
   parseFileName: function(image) {
     var components = image.name.split('-');
     return {
