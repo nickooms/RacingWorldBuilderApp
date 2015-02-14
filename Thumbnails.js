@@ -18,34 +18,32 @@ $T = window.Thumbnails = {
 		$T.div = div;
 		$T.canvas = canvas;
 		$T.context = canvas.getContext('2d');
-		chrome.fileSystem.getWritableEntry(Racing.chosenEntry, function(entry) {
-			$P.rootFolder = entry;
-			$T.entries = Images.fromEntries();
-			$T.processsed = 0;
-			File.folder('Thumbnails').then(function(folder) {
-				alert(folder);
+		$T.count = 0;
+		$T.entries = Images.fromEntries();
+		$T.processsed = 0;
+		File.folder('Thumbnails').then(function(folder) {
+			var folders = {};
+			$T.entries.forEach(function(image) {
+				folders[image.name.split('-')[2]] = true;
 			});
-			/*$T.entries.forEach(function(image) {
-				$P.rootFolder.getFile(image.name, {}, function(imageFile) {
-					imageFile.file(function(file) {
-						var url = URL.createObjectURL(file);
-						var img = document.createElement('img');
-						img.onload = function(evt) {
+			for (var folderName in folders) {
+				File.folder('Thumbnails/' + folderName).then(function(folder) {
+					$T.entries.filter(function(image) {
+						return image.name.split('-')[2] === folder.name ? image : null;
+					}).forEach(function(image) {
+						File.loadImage(image.name).then(function(img) {
+							$T.count++;
 							$T.context.clearRect(0, 0, 64, 64);
-							$T.context.drawImage(evt.target, 0, 0, 512, 512, 0, 0, 64, 64);
+							$T.context.drawImage(img, 0, 0, 512, 512, 0, 0, 64, 64);
 							var thumbnail = $P.png($T.canvas);
-							var name = image.name;
-							File.createFolder('Thumbnails', function() {
-								File.saveImage('Thumbnails/' + name, thumbnail, function() {
-									$T.processsed++;
-									$T.div.style.width = parseInt($T.processsed * 100 / $T.entries.length) + '%';
-								});
+							File.saveImage('Thumbnails/' + image.name.split('-')[2] + '/' + image.name, thumbnail, function() {
+								$T.processsed++;
+								$T.div.style.width = parseInt($T.processsed * 100 / ($T.entries.length - 1)) + '%';
 							});
-						}
-						img.src = url;
+						});
 					});
 				});
-			});*/
+			}
 		});
 	}
 };

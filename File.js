@@ -65,3 +65,21 @@ File.folder = function(folderName) {
     });
   });
 };
+File.loadImage = function(fileName) {
+  return new Promise(function(resolve, reject) {
+    Racing.chosenEntry.getFile(fileName, {}, function(imageFile) {
+      imageFile.file(function(file) {
+        var url = URL.createObjectURL(file);
+        var img = document.createElement('img');
+        img.onload = function(evt) {
+          resolve(evt.target);
+        };
+        img.src = url;
+      }, function(eee) {
+        alert(eee);
+      });
+    }, function(ee) {
+      alert(ee);
+    });
+  });
+};
