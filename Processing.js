@@ -211,9 +211,165 @@ window.$P = window.Processing = {
 			});
 		});
 	},
+	tileFound: function(coords) {
+		var x = coords[0];
+		var y = coords[1];
+		var result = floodFill($P.canvas, x, y, 0xff0000ff, 0xff);
+		var expands = $P.expands[$P.fileIndex];
+		expands.left = expands.left || result.x == 0;
+		expands.right = expands.right || result.x + result.width == 512;
+		expands.top = expands.top || result.y == 0;
+		expands.bottom = expands.bottom || result.y + result.height == 512;
+		/*alert({
+			left: result.x,
+			top: result.y,
+			right: result.x + result.width,
+			bottom: result.y + result.height
+		});*/
+		if (result.width != 1) {
+			getTileObject($P.canvas).then($P.tileFound, $P.tileNotFound);
+		} else {
+			$P.nextTile();
+		}
+	},
+	tileNotFound: function(error) {
+		$P.nextTile();
+	},
+	loadTile: function() {
+		var file = $P.files[$P.fileIndex];
+		var fileName = $P.layerName + '/' + file.join(',') + '.png';
+		$P.expands[$P.fileIndex] = {
+			left: false,
+			right: false,
+			top: false,
+			bottom: false,
+			index: $P.fileIndex,
+			name: fileName,
+			processed: false,
+			used: false,
+			file: file,
+			tiles: []
+		};
+		alert(fileName + ' ' + $P.fileIndex);
+		File.loadImage(fileName).then(function(img) {
+			$P.context.clearRect(0, 0, 512, 512);
+			$P.context.drawImage(img, 0, 0);
+			getTileObject($P.canvas).then($P.tileFound, $P.tileNotFound);
+		});
+	},
+	nextTile: function() {
+		if ($P.fileIndex < $P.files.length - 1) {
+			$P.fileIndex++;
+			$P.loadTile();
+		} else {
+			alert('Done');
+			for (var i = 0; i < $P.files.length; i++) {
+				$P.expandTile($P.expands[i]);
+			}
+			for (var i = 0; i < $P.files.length; i++) {
+				var expands = $P.expands[i];
+				if (!expands.used) {
+					expands.used = true;
+					var tiles = {};
+					tiles[i] = true;
+					tiles = $P.addTiles(tiles, expands.tiles);
+					var files = [];
+					var rowMin = Infinity;
+					var rowMax = -Infinity;
+					var colMin = Infinity;
+					var colMax = -Infinity;
+					for (var fileIndex in tiles) {
+						var file = $P.files[fileIndex];
+						files.push(file.join(','));
+						rowMin = Math.min(rowMin, parseInt(file[0]));
+						rowMax = Math.max(rowMax, parseInt(file[2]));
+						colMin = Math.min(colMin, parseInt(file[1]));
+						colMax = Math.max(colMax, parseInt(file[3]));
+					}
+					alert(files);
+					alert([rowMin, rowMax, colMin, colMax]);
+				}
+			}
+		}
+	},
+	addTiles: function(tiles, tilesToAdd) {
+		for (var i = 0; i < tilesToAdd.length; i++) {
+			var tile2Add = tilesToAdd[i];
+			if (tiles[tile2Add] == null && !$P.expands[tile2Add].used) {
+				tiles[tile2Add] = true;
+				$P.expands[tile2Add].used = true;
+				tiles = $P.addTiles(tiles, $P.expands[tile2Add].tiles);
+			}
+		}
+		return tiles;
+	},
+	expandTile: function(expands) {
+		var x = parseInt(expands.file[0]);
+		var y = parseInt(expands.file[1]);
+		if (expands.right) {
+			var tileIndex = $P.tileExists(x + 1, y);
+			if (tileIndex != null) {
+				expands.tiles.push(tileIndex);
+			}
+		}
+		if (expands.top) {
+			var tileIndex = $P.tileExists(x, y + 1);
+			if (tileIndex != null) {
+				expands.tiles.push(tileIndex);
+			}
+		}
+		if (expands.left) {
+			var tileIndex = $P.tileExists(x - 1, y);
+			if (tileIndex != null) {
+				expands.tiles.push(tileIndex);
+			}
+		}
+		if (expands.bottom) {
+			var tileIndex = $P.tileExists(x, y - 1);
+			if (tileIndex != null) {
+				expands.tiles.push(tileIndex);
+			}
+		}
+	},
+	tileExists: function(x, y) {
+		for (var i = 0; i < $P.files.length; i++) {
+			var file = $P.files[i];
+			if (parseInt(file[0]) == x && parseInt(file[1]) == y) {
+				return i;
+			}
+		}
+		return null;
+	},
 	init: function() {
 		$P.start = new Date().getTime();
-		Grid.load(Thumbnails.generate);
+		$P.layerName = 'GRB_WBN,Kruispunt';
+		$P.fileIndex = 0;
+		Grid.load(function() {
+			Racing.chosenEntry.getFile($P.layerName + '/files.json', {}, function(fileEntry) {
+				getTextFile(fileEntry).then(JSON.parse).then(function(files) {
+					$P.files = files;
+					$P.expands = [];
+					var canvas = document.createElement('canvas');
+					canvas.width = 512;
+					canvas.height = 512;
+					canvas.style.position = 'absolute';
+					canvas.style.left = '0px';
+					canvas.style.top = '0px';
+					document.body.appendChild(canvas);
+					$P.canvas = canvas;
+					$P.context = canvas.getContext('2d');
+					$P.loadTile();
+				});
+			});
+		});
+		//var entries = Images.fromEntries();
+		//alert(entries.length);
+		/*entries.filter(function(image) {
+			return image.name.split('-')[2] == 'GRB_WBN,Baan' ? image : null;
+		}).forEach(function(image) {
+			alert(image.name);
+		});*/
+		//Grid.load(Thumbnails.generate);
 		/*Grid.save(function() {
 			alert('Grid saved');
 		});*/
