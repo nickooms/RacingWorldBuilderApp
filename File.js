@@ -71,6 +71,7 @@ File.loadImage = function(fileName) {
       imageFile.file(function(file) {
         var url = URL.createObjectURL(file);
         var img = document.createElement('img');
+        img.name = fileName;
         img.onload = function(evt) {
           resolve(evt.target);
         };
