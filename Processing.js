@@ -1,8 +1,8 @@
 window.$P = window.Processing = {
 	init: function() {
-		$P.makeLayerFolder('GRB_WBN', 'Stabroek-Markt-GRB_WBN-152488.52764372,221831.34366269,152522.39437812,221865.21039709');
-		//$G.groupTiles();
-		//$G.splitGroups();
+		//$P.makeLayerFolder('GRB_WBN:Kruispunt', 127/*, 'Stabroek-Markt-GRB_WBN-152488.52764372,221831.34366269,152522.39437812,221865.21039709'*/);
+		//$G.groupTiles('GRB_WBN,Kruispunt');
+		$G.splitGroups('GRB_WBN,Kruispunt');
 		//Grid.load(Thumbnails.generate);
 		/*Grid.save(function() {
 			alert('Grid saved');
@@ -75,7 +75,10 @@ window.$P = window.Processing = {
 			$P.layerIndex = 0;
 		});*/
 	},
-	makeLayerFolder: function(layerName, fileNameFilter) {
+	makeLayerFolder: function(layerName, opacityThreshold, fileNameFilter) {
+		if (opacityThreshold) {
+			$P.opacityThreshold = opacityThreshold;
+		}
 		Grid.load(function() {
 			$P.start = new Date().getTime();
 			$P.layer = layerName;
@@ -86,7 +89,6 @@ window.$P = window.Processing = {
 					return file.name.indexOf(fileNameFilter) != -1 ? file : null;
 				});
 			}
-			alert($P.files);
 			$P.analyze = true;
 			$P.foundRed = false;
 			$P.process($P.files[0].name);
@@ -322,7 +324,7 @@ window.$P = window.Processing = {
 		$P.rightMenu = div;
 		$P.leftCanvas.onmouseup = $P.rightCanvas.onmouseup = $P.mouseup;
 	},
-	process: function(fileName) {
+	process: function(fileName, opacityThreshold) {
 		File.load(fileName, function(img) {
 			var size = 512;
 			var leftContext = $P.leftCanvas.getContext('2d');
@@ -444,6 +446,7 @@ window.$P = window.Processing = {
 		}
 	},
 	filterColors: function(data) {
+		opacityThreshold = $P.opacityThreshold || 63;
 		var empty = true;
 		var thresholdMin, thresholdMax;
 		var thresholds = LAYERS.item($P.layer).thresholds;
@@ -453,7 +456,7 @@ window.$P = window.Processing = {
 			var b = data[i + 2];
 			var a = data[i + 3];
 			var avg = (r + g + b) / 3;
-			if (a < 63) {
+			if (a < opacityThreshold) {
 				data[i] = data[i + 1] = data[i + 2] = 0x00;
 				data[i + 3] = 0x00;
 			} else {

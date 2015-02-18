@@ -1,8 +1,8 @@
 $G = window.TileGrouping = {
 	tileSize: 512,
-	groupTiles: function() {
+	groupTiles: function(layerName) {
 		$G.start = new Date().getTime();
-		$G.layerName = 'GRB_WBN,Kruispunt';
+		$G.layerName = layerName;
 		$G.fileIndex = 0;
 		Grid.load(function() {
 			Racing.chosenEntry.getFile($G.layerName + '/files.json', {}, function(fileEntry) {
@@ -23,9 +23,9 @@ $G = window.TileGrouping = {
 			});
 		});
 	},
-	splitGroups: function() {
+	splitGroups: function(layerName) {
 		$G.start = new Date().getTime();
-		$G.layerName = 'GRB_WBN,Kruispunt';
+		$G.layerName = layerName;
 		$G.fileIndex = 0;
 		Grid.load(function() {
 			Racing.chosenEntry.getFile($G.layerName + '/Grouped/files.json', {}, function(fileEntry) {
@@ -60,8 +60,8 @@ $G = window.TileGrouping = {
 		var x = coords[0];
 		var y = coords[1];
 		var result = floodFill($G.canvas, x, y, 0xff0000ff, 0xff);
+		alert(result);
 		if (result.width != 1 && result.height != 1) {
-			alert(result);
 			getTileObject($G.canvas).then($G.splitGroupFound, $G.splitGroupNotFound);
 		} else {
 			$G.splitGroupNotFound();
@@ -190,7 +190,7 @@ $G = window.TileGrouping = {
 				x *= size;
 				y *= size;
 				context.strokeStyle = '#FF0000';
-				context.strokeRect(x, y, size, size);
+				//context.strokeRect(x, y, size, size);
 				context.drawImage(img, x, y, size, size);
 				$G.groupTilesLoaded++;
 				if ($G.groupTiles == $G.groupTilesLoaded) {
