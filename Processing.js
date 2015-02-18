@@ -1,8 +1,8 @@
 window.$P = window.Processing = {
 	init: function() {
-		$G.groupTiles();
+		$P.makeLayerFolder('GRB_WBN');
+		//$G.groupTiles();
 		//$G.splitGroups();
-		//$P.start = new Date().getTime();
 		//Grid.load(Thumbnails.generate);
 		/*Grid.save(function() {
 			alert('Grid saved');
@@ -74,14 +74,17 @@ window.$P = window.Processing = {
 			$P.pointIndex = 0;
 			$P.layerIndex = 0;
 		});*/
-		/*Grid.load(function() {
-			$P.layer = 'GRB_GBG';
+	},
+	makeLayerFolder: function(layerName) {
+		Grid.load(function() {
+			$P.start = new Date().getTime();
+			$P.layer = layerName;
 			$P.output = [];
 			$P.createView();
 			$P.analyze = true;
 			$P.foundRed = false;
 			$P.process($P.files[0].name);
-		});*/
+		});
 	},
 	tileObjectFound: function(coords) {
 		var x = coords[0];
