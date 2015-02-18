@@ -25,12 +25,14 @@ var getTextFile = function(fileEntry) {
 var getTileObject = function(canvas) {
 	return new Promise(function(resolve, reject) {
 		var context = canvas.getContext('2d');
-		var imageData = context.getImageData(0, 0, 512, 512);
+		var w = canvas.width;
+		var h = canvas.height;
+		var imageData = context.getImageData(0, 0, w, h);
 		var data = imageData.data;
 		var x, y, offset, r, g, b, a, isNotEmpty, isNotProcessed;
-		for (y = 0; y < 512; y++) {
-			for (x = 0; x < 512; x++) {
-				offset = (512 * y + x) * 4;
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
+				offset = (h * y + x) * 4;
 				r = data[offset];
 				g = data[offset + 1];
 				b = data[offset + 2];
@@ -39,7 +41,6 @@ var getTileObject = function(canvas) {
 				if (isNotEmpty) {
 					isNotProcessed = !(r == 0xff && g == 0 && b == 0 && a == 0xff);
 					if (isNotProcessed) {
-						//alert([x, y]);
 						resolve([x, y, [r, g, b, a]]);
 						return;
 					}

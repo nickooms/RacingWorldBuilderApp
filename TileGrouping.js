@@ -2,7 +2,7 @@ $G = window.TileGrouping = {
 	tileSize: 512,
 	groupTiles: function() {
 		$G.start = new Date().getTime();
-		$G.layerName = 'GRB_WBN,Baan';
+		$G.layerName = 'GRB_WBN,Kruispunt';
 		$G.fileIndex = 0;
 		Grid.load(function() {
 			Racing.chosenEntry.getFile($G.layerName + '/files.json', {}, function(fileEntry) {
@@ -22,6 +22,62 @@ $G = window.TileGrouping = {
 				});
 			});
 		});
+	},
+	splitGroups: function() {
+		$G.start = new Date().getTime();
+		$G.layerName = 'GRB_WBN,Kruispunt';
+		$G.fileIndex = 0;
+		Grid.load(function() {
+			Racing.chosenEntry.getFile($G.layerName + '/Grouped/files.json', {}, function(fileEntry) {
+				getTextFile(fileEntry).then(JSON.parse).then(function(files) {
+					$G.files = files;
+					$G.splitGroup();
+				});
+			});
+		});
+	},
+	splitGroup: function() {
+		var file = $G.files[$G.fileIndex];
+		var fileName = $G.layerName + '/Grouped/' + file.join(',') + '.png';
+		alert(fileName + ' ' + ($G.fileIndex + 1) + '/' + $G.files.length);
+		File.loadImage(fileName).then(function(img) {
+			var w = img.width;
+			var h = img.height;
+			var canvas = document.createElement('canvas');
+			canvas.style.position = 'absolute';
+			canvas.style.top = '0px';
+			canvas.width = w;
+			canvas.height = h;
+			document.body.appendChild(canvas);
+			$G.canvas = canvas;
+			var context = canvas.getContext('2d');
+			context.drawImage(img, 0, 0, w, h);
+			getTileObject($G.canvas).then($G.splitGroupFound, $G.splitGroupNotFound);
+		});
+	},
+	splitGroupFound: function(coords) {
+		alert(coords);
+		var x = coords[0];
+		var y = coords[1];
+		var result = floodFill($G.canvas, x, y, 0xff0000ff, 0xff);
+		if (result.width != 1 && result.height != 1) {
+			alert(result);
+			getTileObject($G.canvas).then($G.splitGroupFound, $G.splitGroupNotFound);
+		} else {
+			$G.splitGroupNotFound();
+		}
+	},
+	splitGroupNotFound: function(error) {
+		if (error) {
+			alert(error);
+		}
+		if ($G.fileIndex < $G.files.length - 1) {
+			document.body.removeChild(document.querySelector('canvas'));
+			$G.fileIndex++;
+			$G.splitGroup();
+		} else {
+			alert('Done');
+		}
 	},
 	tileFound: function(coords) {
 		var x = coords[0];
@@ -88,8 +144,7 @@ $G = window.TileGrouping = {
 					});
 				}
 			}
-			alert('Done');
-			$G.canvas.style.display = 'none';
+			//$G.canvas.style.display = 'none';
 			var div = document.createElement('div');
 			div.style.position = 'absolute';
 			div.style.top = '0px';
@@ -97,6 +152,7 @@ $G = window.TileGrouping = {
 			$G.div = div;
 			$G.groupIndex = 0;
 			File.folder($G.layerName + '/Grouped').then(function() {
+				$G.groupFiles = {};
 				$G.showGroup();
 			});
 		}
@@ -133,14 +189,25 @@ $G = window.TileGrouping = {
 				var y = (h - 1) - (parseInt(name[1]) - rowMin);
 				x *= size;
 				y *= size;
+				context.strokeStyle = '#FF0000';
+				context.strokeRect(x, y, size, size);
 				context.drawImage(img, x, y, size, size);
 				$G.groupTilesLoaded++;
 				if ($G.groupTiles == $G.groupTilesLoaded) {
 					var image = $P.png(canvas);
-					File.saveImage($G.layerName + '/Grouped/' + files.join(' ') + '.png', image, function() {
+					File.saveImage($G.layerName + '/Grouped/' + files.join(',') + '.png', image, function() {
+						$G.groupFiles[files] = true;
 						if ($G.groupIndex < $G.groups.length - 1) {
 							$G.groupIndex++;
 							$G.showGroup();
+						} else {
+							var groupFiles = [];
+							for (var groupFile in $G.groupFiles) {
+								groupFiles.push(groupFile.split(','));
+							}
+							File.save($G.layerName + '/Grouped/files.json', JSON.stringify(groupFiles), function() {
+								alert('Done [' + (new Date().getTime() - $G.start) + ' ms]');
+							});
 						}
 					});
 				}

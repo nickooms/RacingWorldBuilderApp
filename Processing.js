@@ -1,48 +1,7 @@
 window.$P = window.Processing = {
-	color: function(color) {
-		switch (color) {
-			case '#cccccc':
-			case '#b7b7b7':
-				return 0x99999900;
-			default:
-				return 0x99999900;
-		}
-	},
-	newColor: function(color) {
-		switch (color) {
-			case '#fa9b87':
-				return '#00ff00';
-			default:
-				return null;
-		}
-	},
-	highlight: function(color, canvas) {
-		var ctx = $P.highlightCanvas.getContext('2d');
-		var backupImage = $P.highlightCanvas.id == 'left' ? $P.leftBackupImage : $P.rightBackupImage;
-		if (color != null) {
-			$P.highlightImageData = ctx.createImageData(backupImage);
-			$P.highlightImageData.data.set(backupImage.data);
-			var data = $P.highlightImageData.data;
-			var length = data.byteLength;
-			for (var i = 0; i < length; i += 4) {
-				var r = data[i];
-				var g = data[i + 1];
-				var b = data[i + 2];
-				var a = data[i + 3];
-				if (color.indexOf(r + ',' + g + ',' + b + ',' + a) != -1) {
-					data[i] = 0;
-					data[i + 1] = 0;
-					data[i + 2] = 255;
-					data[i + 3] = 255;
-				}
-			}
-			ctx.putImageData($P.highlightImageData, 0, 0);
-		} else {
-			ctx.putImageData(backupImage, 0, 0);
-		}
-	},
 	init: function() {
 		$G.groupTiles();
+		//$G.splitGroups();
 		//$P.start = new Date().getTime();
 		//Grid.load(Thumbnails.generate);
 		/*Grid.save(function() {
@@ -518,6 +477,48 @@ window.$P = window.Processing = {
 			}
 		}
 		return !empty;
+	},
+	color: function(color) {
+		switch (color) {
+			case '#cccccc':
+			case '#b7b7b7':
+				return 0x99999900;
+			default:
+				return 0x99999900;
+		}
+	},
+	newColor: function(color) {
+		switch (color) {
+			case '#fa9b87':
+				return '#00ff00';
+			default:
+				return null;
+		}
+	},
+	highlight: function(color, canvas) {
+		var ctx = $P.highlightCanvas.getContext('2d');
+		var backupImage = $P.highlightCanvas.id == 'left' ? $P.leftBackupImage : $P.rightBackupImage;
+		if (color != null) {
+			$P.highlightImageData = ctx.createImageData(backupImage);
+			$P.highlightImageData.data.set(backupImage.data);
+			var data = $P.highlightImageData.data;
+			var length = data.byteLength;
+			for (var i = 0; i < length; i += 4) {
+				var r = data[i];
+				var g = data[i + 1];
+				var b = data[i + 2];
+				var a = data[i + 3];
+				if (color.indexOf(r + ',' + g + ',' + b + ',' + a) != -1) {
+					data[i] = 0;
+					data[i + 1] = 0;
+					data[i + 2] = 255;
+					data[i + 3] = 255;
+				}
+			}
+			ctx.putImageData($P.highlightImageData, 0, 0);
+		} else {
+			ctx.putImageData(backupImage, 0, 0);
+		}
 	},
 	mouseup: function(evt) {
 		var canvas = evt.target;
