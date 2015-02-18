@@ -1,6 +1,6 @@
 window.$P = window.Processing = {
 	init: function() {
-		$P.makeLayerFolder('GRB_WBN');
+		$P.makeLayerFolder('GRB_WBN', 'Stabroek-Markt-GRB_WBN-152488.52764372,221831.34366269,152522.39437812,221865.21039709');
 		//$G.groupTiles();
 		//$G.splitGroups();
 		//Grid.load(Thumbnails.generate);
@@ -75,12 +75,18 @@ window.$P = window.Processing = {
 			$P.layerIndex = 0;
 		});*/
 	},
-	makeLayerFolder: function(layerName) {
+	makeLayerFolder: function(layerName, fileNameFilter) {
 		Grid.load(function() {
 			$P.start = new Date().getTime();
 			$P.layer = layerName;
 			$P.output = [];
 			$P.createView();
+			if (fileNameFilter) {
+				$P.files = $P.files.filter(function(file) {
+					return file.name.indexOf(fileNameFilter) != -1 ? file : null;
+				});
+			}
+			alert($P.files);
 			$P.analyze = true;
 			$P.foundRed = false;
 			$P.process($P.files[0].name);
