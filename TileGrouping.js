@@ -227,31 +227,26 @@ $G = window.TileGrouping = {
 		return tiles;
 	},
 	expandTile: function(expands) {
-		var x = parseInt(expands.file[0]);
-		var y = parseInt(expands.file[1]);
-		if (expands.right) {
-			var tileIndex = $G.tileExists(x + 1, y);
+		function addTileIfFound(tileIndex) {
 			if (tileIndex != null) {
-				expands.tiles.push(tileIndex);
+				tiles.push(tileIndex);
 			}
+		}
+		var file = expands.file;
+		var tiles = expands.tiles;
+		var x = parseInt(file[0]);
+		var y = parseInt(file[1]);
+		if (expands.right) {
+			addTileIfFound($G.tileExists(x + 1, y));
 		}
 		if (expands.top) {
-			var tileIndex = $G.tileExists(x, y + 1);
-			if (tileIndex != null) {
-				expands.tiles.push(tileIndex);
-			}
+			addTileIfFound($G.tileExists(x, y + 1));
 		}
 		if (expands.left) {
-			var tileIndex = $G.tileExists(x - 1, y);
-			if (tileIndex != null) {
-				expands.tiles.push(tileIndex);
-			}
+			addTileIfFound($G.tileExists(x - 1, y));
 		}
 		if (expands.bottom) {
-			var tileIndex = $G.tileExists(x, y - 1);
-			if (tileIndex != null) {
-				expands.tiles.push(tileIndex);
-			}
+			addTileIfFound($G.tileExists(x, y - 1));
 		}
 	},
 	tileExists: function(x, y) {
