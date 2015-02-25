@@ -146,10 +146,10 @@ $S = window.SplitTiles = {
 			$S.colMax = Math.max($S.colMax, col);
 			$S.rowMax = Math.max($S.rowMax, row);
 		}
-		$S.xMin = Grid.cols[$S.colMin];
-		$S.yMin = Grid.rows[$S.rowMin];
-		$S.xMax = Grid.cols[$S.colMax];
-		$S.yMax = Grid.rows[$S.rowMax];
+		$S.xMin = parseFloat(Grid.cols[$S.colMin]);
+		$S.yMin = parseFloat(Grid.rows[$S.rowMin]);
+		$S.xMax = parseFloat(Grid.cols[$S.colMax + 1]);
+		$S.yMax = parseFloat(Grid.rows[$S.rowMax + 1]);
 		alert([$S.xMin, $S.yMin, $S.xMax, $S.yMax]);
 		$S.cols = 1 + $S.colMax - $S.colMin;
 		$S.rows = 1 + $S.rowMax - $S.rowMin;
