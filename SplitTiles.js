@@ -185,7 +185,7 @@ $S = window.SplitTiles = {
 						$S.objectIndex++;
 						$S.joinObject();
 					} else {
-						alert('Done xxxxxx [' + (new Date().getTime() - $S.start) + ' ms]');
+						alert('Done xxxxxxxxx [' + (new Date().getTime() - $S.start) + ' ms]');
 					}
 				});
 			}
