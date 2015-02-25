@@ -41,6 +41,7 @@ var getTileObject = function(canvas) {
 				if (isNotEmpty) {
 					isNotProcessed = !(r == 0xff && g == 0 && b == 0 && a == 0xff);
 					if (isNotProcessed) {
+						//alert([x, y, r, g, b, a]);
 						resolve([x, y, [r, g, b, a]]);
 						return;
 					}

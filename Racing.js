@@ -1,4 +1,4 @@
-window.Racing = {
+$R = window.Racing = {
   processStreetDelay: 1000,
   uniqueCols: {},
   uniqueRows: {},

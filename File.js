@@ -12,6 +12,34 @@ File.load = function(fileName, callback) {
     img.src = url;
   });
 };
+File.loadImage = function(fileName) {
+  return new Promise(function(resolve, reject) {
+    Racing.chosenEntry.getFile(fileName, {}, function(imageFile) {
+      imageFile.file(function(file) {
+        var url = URL.createObjectURL(file);
+        var img = document.createElement('img');
+        img.name = fileName;
+        img.onload = function(evt) {
+          resolve(evt.target);
+        };
+        img.src = url;
+      }, function(eee) {
+        alert(eee);
+      });
+    }, function(ee) {
+      alert(ee);
+    });
+  });
+};
+File.loadJSON = function(fileName) {
+  return new Promise(function(resolve, reject) {
+    $R.chosenEntry.getFile(fileName, {}, function(fileEntry) {
+      getTextFile(fileEntry).then(JSON.parse).then(function(data) {
+        resolve(data);
+      });
+    });
+  });
+};
 File.saveImage = function(fileName, imageData, callback, type) {
   type = type || 'image/png';
   chrome.fileSystem.getWritableEntry(Racing.chosenEntry, function(entry) {
@@ -26,6 +54,8 @@ File.saveImage = function(fileName, imageData, callback, type) {
         };
         fileWriter.write(blob);
       });
+    }, function(e) {
+      console.log(e);
     });
   });
 };
@@ -62,25 +92,6 @@ File.folder = function(folderName) {
       }, function(error) {
         reject(error);
       });
-    });
-  });
-};
-File.loadImage = function(fileName) {
-  return new Promise(function(resolve, reject) {
-    Racing.chosenEntry.getFile(fileName, {}, function(imageFile) {
-      imageFile.file(function(file) {
-        var url = URL.createObjectURL(file);
-        var img = document.createElement('img');
-        img.name = fileName;
-        img.onload = function(evt) {
-          resolve(evt.target);
-        };
-        img.src = url;
-      }, function(eee) {
-        alert(eee);
-      });
-    }, function(ee) {
-      alert(ee);
     });
   });
 };

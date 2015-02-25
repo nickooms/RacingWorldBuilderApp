@@ -1,8 +1,16 @@
 window.$P = window.Processing = {
 	init: function() {
-		//$P.makeLayerFolder('GRB_WBN:Kruispunt', 127/*, 'Stabroek-Markt-GRB_WBN-152488.52764372,221831.34366269,152522.39437812,221865.21039709'*/);
-		//$G.groupTiles('GRB_WBN,Kruispunt');
-		$G.splitGroups('GRB_WBN,Kruispunt');
+		var layerName = 'GRB_WBN:Kruispunt';
+		//$P.makeLayerFolder(layerName);
+		//$S.removeLayerSinglePixels(layerName);
+		//$S.split(layerName);
+		//$S.join(layerName);
+		$S.joinObjects(layerName);
+
+
+		//$G.groupTiles('GRB_WBN,Baan');
+		//$G.removeLayerSinglePixels('GRB_WBN,Kruispunt');
+		//$G.splitGroups('GRB_WBN,Baan');
 		//Grid.load(Thumbnails.generate);
 		/*Grid.save(function() {
 			alert('Grid saved');
