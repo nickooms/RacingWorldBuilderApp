@@ -73,8 +73,91 @@ $S = window.SplitTiles = {
 			File.loadJSON($S.layerName + '/Split/joined.json').then(function(objects) {
 				$S.objects = objects;
 				$S.objectIndex = 0;
+				$S.output = [];
 				File.folder($S.layerName + '/Joined').then($S.joinObject);
 			});
+		});
+	},
+	createPolygons: function(layerName) {
+		$S.start = new Date().getTime();
+		$S.layerName = layerName.replace(':', ',');
+		$S.height = 0;
+		$S.polygons = {};
+		Grid.load(function() {
+			File.loadJSON($S.layerName + '/Joined/files.json').then(function(files) {
+				$S.files = files;
+				$S.fileIndex = 0;
+				File.folder($S.layerName + '/Edge').then($S.createPolygon);
+			});
+		});
+	},
+	createPolygon: function() {
+		var file = $S.files[$S.fileIndex];
+		var fileName = $S.layerName + '/Joined/' + file.name + '.png';
+		File.loadImage(fileName).then(function(img) {
+			var canvas = document.createElement('canvas');
+			var cols = file.colMax - file.colMin;
+			var rows = file.rowMax - file.rowMin;
+			//alert(cols + ' * ' + rows);
+			var width = cols * 512;
+			var height = rows * 512;
+			canvas.width = width;
+			canvas.height = height;
+			canvas.style.position = 'absolute';
+			canvas.style.left = '0px';
+			canvas.style.top = $S.height + 'px';
+			$S.height += height;
+			document.body.appendChild(canvas);
+			canvas.getContext('2d').drawImage(img, 0, 0);
+			var result = MarchingSquares.getBlobOutlinePoints(canvas);
+			var theBorder = [];
+			for (var borderIndex = 0; borderIndex < result.length / 2; borderIndex++) {
+				var borderPoint = {
+					x: result[borderIndex * 2],
+					y: result[borderIndex * 2 + 1]
+				};
+				theBorder.push(borderPoint);
+			}
+			var corners = simplify(theBorder, 2, true);
+			alert(theBorder.length + ' Points --> ' + corners.length + ' Corners');
+			var polygon = [];
+	    var corner = null;
+	    var xMin = file.xMin;
+	    var yMin = file.yMin;
+	    var xMax = file.xMax;
+	    var yMax = file.yMax;
+	    //alert('x: ' + xMin + ' - ' + xMax + ' = ' + (xMax - xMin));
+	    //alert('y: ' + yMin + ' - ' + yMax + ' = ' + (yMax - yMin));
+	    //alert('width = ' + width);
+	    //alert('height = ' + height);
+	    for (var k = 0; k < corners.length; k++) {
+	      corner = corners[k];
+	      //alert([corner.x, corner.y]);
+	      var xPos = (xMin + (corner.x / width * (xMax - xMin))).toString().split('.');
+	      var yPos = (yMax - (corner.y / height * (yMax - yMin))).toString().split('.');
+	      //var xPos = (file.xMin + (corner.x / width) * cols).toString().split('.');
+		    //var yPos = (file.yMin + (corner.y / height) * rows).toString().split('.');
+		    if (xPos.length > 1) {
+		      xPos[1] = xPos[1].substr(0, 2);
+		    }
+		    if (yPos.length > 1) {
+		      yPos[1] = yPos[1].substr(0, 2);
+		    }
+		    polygon.push('[' + xPos.join('.') + ',' + yPos.join('.') + ']');
+	    }
+	    //alert('=========================================================');
+	    $S.polygons['addComplexBaan([' + polygon.join(',') + ']);'] = true;
+			if ($S.fileIndex < $S.files.length - 1) {
+				$S.fileIndex++;
+				$S.createPolygon();
+			} else {
+				var polygons = [];
+	    	for (var polygon in $S.polygons) {
+	    		polygons.push(polygon);
+	    	}
+	    	alert(polygons.join('\n'));
+	    	alert('Done [' + (new Date().getTime() - $S.start) + ' ms]');
+			}
 		});
 	},
 	removeSinglePixels: function() {
@@ -146,13 +229,15 @@ $S = window.SplitTiles = {
 			$S.colMax = Math.max($S.colMax, col);
 			$S.rowMax = Math.max($S.rowMax, row);
 		}
+		$S.colMax++;
+		$S.rowMax++;
 		$S.xMin = parseFloat(Grid.cols[$S.colMin]);
 		$S.yMin = parseFloat(Grid.rows[$S.rowMin]);
-		$S.xMax = parseFloat(Grid.cols[$S.colMax + 1]);
-		$S.yMax = parseFloat(Grid.rows[$S.rowMax + 1]);
+		$S.xMax = parseFloat(Grid.cols[$S.colMax]);
+		$S.yMax = parseFloat(Grid.rows[$S.rowMax]);
 		alert([$S.xMin, $S.yMin, $S.xMax, $S.yMax]);
-		$S.cols = 1 + $S.colMax - $S.colMin;
-		$S.rows = 1 + $S.rowMax - $S.rowMin;
+		$S.cols = $S.colMax - $S.colMin;
+		$S.rows = $S.rowMax - $S.rowMin;
 		var canvas = document.createElement('canvas');
 		canvas.width = $S.cols * 512;
 		canvas.height = $S.rows * 512;
@@ -171,7 +256,7 @@ $S = window.SplitTiles = {
 		var col = parseInt(file[0]);
 		var row = parseInt(file[1]);
 		File.loadImage($S.layerName + '/Split/' + file.join(',') + '.png').then(function(img) {
-			$S.context.drawImage(img, (col - $S.colMin) * 512, ($S.rows - 1 - (row - $S.rowMin)) * 512);
+			$S.context.drawImage(img, (col - $S.colMin) * 512, (-1 + $S.rowMax - row) * 512);
 			if ($S.tileIndex < $S.tiles.length - 1) {
 				$S.tileIndex++;
 				$S.joinTile();
@@ -180,12 +265,25 @@ $S = window.SplitTiles = {
 				var name = $S.layerName + '/Joined/' + $S.objectIndex + '.png';
 				File.saveImage(name, image, function() {
 					alert('Saved ' + name);
+					$S.output.push({
+						name: $S.objectIndex,
+						colMin: $S.colMin,
+						rowMin: $S.rowMin,
+						colMax: $S.colMax,
+						rowMax: $S.rowMax,
+						xMin: $S.xMin,
+						yMin: $S.yMin,
+						xMax: $S.xMax,
+						yMax: $S.yMax
+					});
 					if ($S.objectIndex < $S.objects.length - 1) {
 						document.body.removeChild(document.querySelector('canvas'));
 						$S.objectIndex++;
 						$S.joinObject();
 					} else {
-						alert('Done [' + (new Date().getTime() - $S.start) + ' ms]');
+						File.save($S.layerName + '/Joined/files.json', JSON.stringify($S.output), function() {
+							alert('Done [' + (new Date().getTime() - $S.start) + ' ms]');
+						});
 					}
 				});
 			}

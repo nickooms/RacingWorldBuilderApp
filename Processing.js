@@ -1,11 +1,12 @@
 window.$P = window.Processing = {
 	init: function() {
-		var layerName = 'GRB_WBN:Kruispunt';
+		var layerName = 'GRB_GBG';
 		//$P.makeLayerFolder(layerName);
 		//$S.removeLayerSinglePixels(layerName);
 		//$S.split(layerName);
 		//$S.join(layerName);
-		$S.joinObjects(layerName);
+		//$S.joinObjects(layerName);
+		$S.createPolygons(layerName);
 
 
 		//$G.groupTiles('GRB_WBN,Baan');
